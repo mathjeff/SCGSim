@@ -1,0 +1,157 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{0800A025-87DB-4BD9-84E5-55135A7228A2}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Games</RootNamespace>
+    <AssemblyName>Hearthstone</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Xaml">
+      <RequiredTargetFramework>4.0</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="WindowsBase" />
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+  </ItemGroup>
+  <ItemGroup>
+    <ApplicationDefinition Include="App.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </ApplicationDefinition>
+    <Compile Include="AttackEffect.cs" />
+    <Compile Include="BiConverter.cs" />
+    <Compile Include="CauseProvider.cs" />
+    <Compile Include="ChainProvider.cs" />
+    <Compile Include="EndTurn_Effect.cs" />
+    <Compile Include="ID.cs" />
+    <Compile Include="Identifiable.cs" />
+    <Compile Include="IDFactory.cs" />
+    <Compile Include="PlayCard_Effect.cs" />
+    <Compile Include="ReadableDictionary.cs" />
+    <Compile Include="ReadableSet.cs" />
+    <Compile Include="Readable_LifeTarget.cs" />
+    <Compile Include="ReadWriteConverter.cs" />
+    <Compile Include="Specific_LifeEffect.cs" />
+    <Compile Include="WriteControlled_Set.cs" />
+    <Compile Include="WriteControlled_Item.cs" />
+    <Compile Include="Writable_MonsterCard.cs" />
+    <Compile Include="WritableCard.cs" />
+    <Compile Include="ReadableCard.cs" />
+    <Compile Include="Composite_GameEffect.cs" />
+    <Compile Include="ConstantValueProvider.cs" />
+    <Compile Include="ControllerProvider.cs" />
+    <Compile Include="DrawEffect.cs" />
+    <Compile Include="DrawFromDeck_Provider.cs" />
+    <Compile Include="EmptyEffect.cs" />
+    <Compile Include="LifeSourceMultiplierEffect.cs" />
+    <Compile Include="DefaultHearthstoneGameEvaluator.cs" />
+    <Compile Include="GameTrigger.cs" />
+    <Compile Include="LifeEffect.cs" />
+    <Compile Include="ReadableQueue.cs" />
+    <Compile Include="GameEffect.cs" />
+    <Compile Include="GameTrigger_Factory.cs" />
+    <Compile Include="HearthstoneReferee.cs" />
+    <Compile Include="Writable_LifeTarget.cs" />
+    <Compile Include="LifeTarget_Choices_Provider.cs" />
+    <Compile Include="ListProvider.cs" />
+    <Compile Include="MiniMaxStrategy.cs" />
+    <Compile Include="Game.cs" />
+    <Compile Include="GameEvaluator.cs" />
+    <Compile Include="Readable_GamePlayer.cs" />
+    <Compile Include="Readable_MonsterCard.cs" />
+    <Compile Include="OwnerProvider.cs" />
+    <Compile Include="Resource.cs" />
+    <Compile Include="ResourceEffect.cs" />
+    <Compile Include="SpellCard.cs" />
+    <Compile Include="TournamentPlayer.cs" />
+    <Compile Include="Randomness.cs" />
+    <Compile Include="Referee.cs" />
+    <Compile Include="Strategy.cs" />
+    <Compile Include="Tournament.cs" />
+    <Compile Include="ValueProvider.cs" />
+    <Compile Include="WritableQueue.cs" />
+    <Compile Include="Writable_GamePlayer.cs" />
+    <Page Include="MainWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Compile Include="App.xaml.cs">
+      <DependentUpon>App.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="MainWindow.xaml.cs">
+      <DependentUpon>MainWindow.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Properties\AssemblyInfo.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <AppDesigner Include="Properties\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
