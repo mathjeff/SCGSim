@@ -17,9 +17,8 @@ namespace Games
         Resource Get_ResourcesPerTurn();
         int Get_Total_MonsterDamage(Game game);
         int Get_Total_MonsterHealth(Game game);
-        GameEffect ChooseBestAction(IEnumerable<GameEffect> options, Game game);
         IReadOnlyList<ID<Readable_MonsterCard>> Get_MonsterIDsInPlay();
-        Strategy GetStrategy(Game game);
+        Strategy Strategy { get; }
         void Print(Game game);
         int Get_NumDrawsSkipped();
     }

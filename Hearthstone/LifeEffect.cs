@@ -25,6 +25,7 @@ namespace Games
             this.amountToGain_provider = amountToGain_provider;
             this.targetsProvider = targetsProvider;
             this.chooserProvider = chooserProvider;
+            this.TargetRequired = true;
         }
         public override TriggeredGameEffect<GameEffect> Clone(TriggeredGameEffect<GameEffect> outputType)
         {

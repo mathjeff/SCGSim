@@ -84,7 +84,18 @@ namespace Games
         public int MaxHealth { get; set; }
         public int GetHealth() { return this.Health; }
         public int GetMaxHealth() { return this.MaxHealth; }
-        public void AddHealth(Specific_LifeEffect effect, Game game) { this.Health = Math.Min(this.Health + effect.AmountToGain, this.MaxHealth); } // the game will check for death later
+        public void AddHealth(Specific_LifeEffect effect, Game game)
+        {
+            if (this.Health + effect.AmountToGain < this.MaxHealth)
+            {
+                this.Health = this.Health + effect.AmountToGain;
+            }
+            else
+            {
+                this.Health = this.MaxHealth;
+            }
+            // the game will check for death later
+        }
         public void InitializeHealth(int amount) { this.Health = this.MaxHealth = amount; }
         public List<ReadableCard> Territory { get; set; }
         public Resource CurrentResources
@@ -137,27 +148,13 @@ namespace Games
 
         #endregion
 
-        public Strategy GetStrategy(Game game)
+        public Strategy Strategy
         {
-            if (game.Strategy != null)
+            get
             {
-                // this is a hypothetical game, so we are being simulated by one particular player and all use the same strategy
-                return game.Strategy;
+                return this.sourcePlayer.Strategy;
             }
-            // This is a real game and we use the strategy assigned to the player
-            return this.sourcePlayer.Strategy;
         }
-        // chooses and executes the most desirable action from a list of options
-        public GameEffect ChooseBestAction(IEnumerable<GameEffect> options, Game game)
-        {
-            return this.GetStrategy(game).ChooseBestAction(options, this, game);
-        }
-        // Interestingly enough, the player could do fine without understanding what they're choosing. They could just inspect the board state afterward and evaluate it
-        /*public Readable_LifeTarget Choose_LifeTarget(GameEffect sourceEffect)
-        {
-            return null;
-            //return this.SourcePlayer.Strategy.Choose_LifeTarget(sourceEffect.Game, sourceEffect);
-        }*/
 
         public void TryToDrawCard(ReadableCard card, Game game)
         {

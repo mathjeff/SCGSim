@@ -15,8 +15,15 @@ namespace Games
             this.StartingHealth = 30;
             this.Starting_HandSize = 3;
             this.Max_HandSize = 10;
-            this.legalCards = new List<ReadableCard>{ArgentSquire, BloodfenRaptor, EarthenRingFarseer, ChillwindYeti, AzureDrake, Sunwalker, WarGolem, IronbarkProtector};
-            //this.legalCards = new List<ReadableCard>{BloodfenRaptor};
+            this.legalCards = new List<ReadableCard>{ArgentSquire, ElvenArcher,
+                BloodfenRaptor, RiverCrocolisk,
+                EarthenRingFarseer, IronfurGrizzly,
+                ChillwindYeti, SenjinShieldMasta,
+                AzureDrake,
+                Sunwalker,
+                WarGolem,
+                IronbarkProtector};
+            //this.legalCards = new List<ReadableCard>{EarthenRingFarseer};
         }
         public List<GameEffect> Get_AvailableGameActions(Game game, Readable_GamePlayer player)
         {
@@ -221,7 +228,7 @@ namespace Games
                 // The card named "Coin" that costs 0
                 SpellCard card = new SpellCard("Coin", new Resource(0));
                 // Make a trigger that happens after playing this card, which adds 1 resource this turn to the controller of the effect
-                //card.Add_AfterPlayCard_Trigger(new GameTrigger<GameEffect>(new ResourceEffect(new ConstantValueProvider<Resource, Controlled>(new Resource(1)), new WritableController_Provider())));
+                card.Add_AfterPlayCard_Trigger(new GameTrigger<GameEffect>(new ResourceEffect(new ConstantValueProvider<Resource, Controlled>(new Resource(1)), new WritableController_Provider())));
                 return card;
             }
         }
@@ -236,6 +243,17 @@ namespace Games
             }
         }
 
+        public static Readable_MonsterCard ElvenArcher
+        {
+            get
+            {
+                Writable_MonsterCard card = new Writable_MonsterCard("ElvenArcher", new Resource(1), 1, 1);
+                // Deals 1 damage when it comes into play
+                card.Add_AfterPlayCard_Trigger(new GameTrigger<GameEffect>(new LifeEffect(new ConstantValueProvider<int, Controlled>(-1), new LifeTarget_Choices_Provider(), new ReadableController_Provider())));
+                return card;
+            }
+        }
+
         public static Readable_MonsterCard BloodfenRaptor
         {
             get
@@ -243,6 +261,15 @@ namespace Games
                 return new Writable_MonsterCard("Bloodfen Raptor", new Resource(2), 3, 2);
             }
         }
+
+        public static Readable_MonsterCard RiverCrocolisk
+        {
+            get
+            {
+                return new Writable_MonsterCard("River Crocolisk", new Resource(2), 2, 3);
+            }
+        }
+
 
         public static Readable_MonsterCard EarthenRingFarseer
         {
@@ -255,6 +282,15 @@ namespace Games
                 return card;
             }
         }
+        public static Readable_MonsterCard IronfurGrizzly
+        {
+            get
+            {
+                Writable_MonsterCard card = new Writable_MonsterCard("Ironfur Grizzly", new Resource(3), 3, 3);
+                card.MustBeAttacked = true;
+                return card;
+            }
+        }
 
         public static Readable_MonsterCard ChillwindYeti
         {
@@ -262,6 +298,15 @@ namespace Games
             {
                 return new Writable_MonsterCard("Chillwind Yeti", new Resource(4), 4, 5);
 
+            }
+        }
+        public static Readable_MonsterCard SenjinShieldMasta
+        {
+            get
+            {
+                Writable_MonsterCard card = new Writable_MonsterCard("Sen'jin SheildMasta", new Resource(4), 3, 5);
+                card.MustBeAttacked = true;
+                return card;
             }
         }
 

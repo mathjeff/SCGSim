@@ -14,59 +14,47 @@ namespace Games
             this.NumTimeSteps = numTimeSteps;
         }
 
-        public GameEffect ChooseBestAction(IEnumerable<GameEffect> effects, Readable_GamePlayer chooser, Game game)
+        public GameEffect ChooseBestAction(GameChoice choice, Game game)
         {
-            return this.ChooseBestAction(effects, chooser, game, this.NumTimeSteps).EffectToChoose;
+            game = game.Clone();
+            // Inform the game and its descendents that it is a hypothetical game, so all players use the strategy of the player doing the imagining
+            game.Strategy = game.GetStrategy(game.Get_ReadableSnapshot(choice.ControllerID));
+            IEnumerable<GameEffect> effects = choice.Options;
+            Readable_GamePlayer chooser = game.Get_ReadableSnapshot(choice.ControllerID);
+            // create the base game
+            Analyzed_GameState rootState = new Analyzed_GameState(game, null, null, chooser.GetID((Readable_GamePlayer)null), this.GameEvaluator.EstimateWinProbabilities(game));
+            // Put the first set of choices onto the starting gameState
+            this.PutGameOptions(rootState, choice);
+            // loop until we run out of time
+            while (rootState.NumDescendents < this.NumTimeSteps)
+            {
+                // Find the current best path and explore it for one more time unit
+                this.ProcessOnce(rootState);
+            }
+            return rootState.FavoriteChild.SourceEffect;
         }
-        public Analyzed_GameMove ChooseBestAction(IEnumerable<GameEffect> effects, Readable_GamePlayer chooser, Game game, int remainingTime)
+        private void ProcessOnce(Analyzed_GameState gameState)
         {
-            // Step 1: Clone the game once for each effect
-            // Step 2: Compute the favorability of each scenario
-            // Step 3: Remove any scenarios that we don't have time to check (based on their depth and their heuristic score)
-            // Step 4a: If multiple scenarios remain, recurse into them
-            // Step 4b: If one scenario remains, choose it
-            // Step 4c: If scenarios remain, choose the most favorable scenario found
-            Analyzed_GameMove bestMove = null;
-            foreach (GameEffect effect in effects)
+            // follow the series of game states that we predict to take place in the actual game
+            while (gameState.FavoriteChild != null)
+            {
+                gameState = gameState.FavoriteChild;
+            }
+            // Generate a child game for each possibility
+            Game currentGame = gameState.Game;
+            this.PutGameOptions(gameState, currentGame.Get_NextChoice());
+        }
+        private void PutGameOptions(Analyzed_GameState gameState,  GameChoice choice)
+        {
+            foreach (GameEffect effect in choice.Options)
             {
                 // quickly do a lazy clone of the game (we just use pointers to the other game until anything actually changes)
-                //game.DebugCheck();
-                Game newGame = game.Clone();
-                //game.DebugCheck();
-                if (newGame.Strategy == null)
-                {
-                    // inform the hypothetical game that all players in that game will use the strategy of the player doing the thinking
-                    newGame.Strategy = chooser.GetStrategy(game);
-                }
+                Game newGame = gameState.Game.Clone();
                 // make a new effect and execute it
                 GameEffect clonedEffect = effect.Clone((GameEffect)null);
-                //game.DebugCheck();
                 clonedEffect.Process(newGame);
-                //game.DebugCheck();
-                Analyzed_GameMove option = new Analyzed_GameMove(newGame, effect);
-                // if we have enough time, then recurse
-
-                if (remainingTime > 0 && !(effect is EndTurn_Effect))
-                {
-                    GameChoice nextChoice = newGame.Get_NextChoice();
-
-                    Analyzed_GameMove subOption = this.ChooseBestAction(nextChoice.Options, newGame.Get_ReadableSnapshot(nextChoice.ControllerID), newGame, remainingTime / nextChoice.Options.Count());
-                    option.WinProbabilities = subOption.WinProbabilities;
-                }
-                else
-                {
-                    // If we don't have much time left for thinking, then just use the provided heuristic
-                    option.WinProbabilities = this.GameEvaluator.EstimateWinProbabilities(newGame);
-                }
-                double myProbability = option.WinProbabilities[chooser.GetID((Readable_GamePlayer)null)];
-                // check whether this move is better than any previously found
-                if (bestMove == null || myProbability > bestMove.WinProbabilities[chooser.GetID((Readable_GamePlayer)null)])
-                    bestMove = option;
-                if (myProbability >= 1)
-                    break;
-                //game.DebugCheck();
+                new Analyzed_GameState(newGame, gameState, effect, choice.ControllerID, this.GameEvaluator.EstimateWinProbabilities(newGame));
             }
-            return bestMove;
         }
         public double EstimateWinProbability(Game game, ID<Readable_GamePlayer> playerID)
         {
@@ -82,15 +70,123 @@ namespace Games
 
     }
 
-    public class Analyzed_GameMove
+    public class Analyzed_GameState
     {
-        public Analyzed_GameMove(Game resultantGame, GameEffect effectToChoose)
+        public Analyzed_GameState(Game resultantGame, Analyzed_GameState parent, GameEffect sourceEffect, ID<Readable_GamePlayer> choosingPlayerID, Dictionary<ID<Readable_GamePlayer>, double> winProbabilities)
         {
-            this.ResultantGame = resultantGame;
-            this.EffectToChoose = effectToChoose;
+            this.Game = resultantGame;
+            this.SourceEffect = sourceEffect;
+            this.ChoosingPlayerID = choosingPlayerID;
+            this.winProbabilities = winProbabilities;
+            this.Parent = parent;
         }
-        public Game ResultantGame;
-        public GameEffect EffectToChoose;
-        public Dictionary<ID<Readable_GamePlayer>, double> WinProbabilities;
+        public Game Game; // the state of the game
+        public GameEffect SourceEffect; // the latest effect that happened to bring us to this game state
+        public Dictionary<ID<Readable_GamePlayer>, double> WinProbabilities // our latest estimate of each player's probability of winning
+        {
+            get
+            {
+                this.EnsureAggregatesAreUpdated();
+                return this.winProbabilities;
+            }
+        }
+        private Dictionary<ID<Readable_GamePlayer>, double> winProbabilities = new Dictionary<ID<Readable_GamePlayer>, double>(); // our latest estimate of each player's probability of winning
+        public ID<Readable_GamePlayer> ChoosingPlayerID;
+        public HashSet<Analyzed_GameState> Children = new HashSet<Analyzed_GameState>(); // which states to which we can jump to directly from here
+        public int NumDescendents
+        {
+            get
+            {
+                this.EnsureAggregatesAreUpdated();
+                return this.numDescendents;
+            }
+        }
+        private int numDescendents;
+        public Analyzed_GameState Parent // the game state that this one came from
+        {
+            get
+            {
+                return this.parent;
+            }
+            set
+            {
+                if (this.parent != null)
+                    this.parent.RemoveChild(this);
+                this.parent = value;
+                if (this.parent != null)
+                    this.parent.AddChild(this);
+            }
+        }
+        public void AddChild(Analyzed_GameState child)
+        {
+            this.Children.Add(child);
+            this.InvalidateAggregates();
+        }
+        public void RemoveChild(Analyzed_GameState child)
+        {
+            this.Children.Remove(child);
+            this.InvalidateAggregates();
+        }
+        private void InvalidateAggregates()
+        {
+            if (this.AreAggregatesValid())
+            {
+                this.numDescendents = -1;
+                this.favoriteChild = null;
+                this.winProbabilities = null;
+                if (this.parent != null)
+                    this.parent.InvalidateAggregates();
+            }
+        }
+        private bool AreAggregatesValid()
+        {
+            return (this.numDescendents >= 0);
+        }
+        private void EnsureAggregatesAreUpdated()
+        {
+            if (!this.AreAggregatesValid())
+                this.UpdateAggregatesFromChildren();
+        }
+        public void UpdateAggregatesFromChildren()
+        {
+            // update score based on children
+            this.winProbabilities = this.FavoriteChild.WinProbabilities;
+            // update this.NumDescendents
+            int numDescendents = 0;
+            foreach (Analyzed_GameState child in this.Children)
+            {
+                numDescendents += 1 + child.NumDescendents;
+            }
+            this.numDescendents = numDescendents;
+            // update parent too
+            if (this.parent != null)
+                this.parent.UpdateAggregatesFromChildren();
+        }
+        private Analyzed_GameState parent;
+        public Analyzed_GameState FavoriteChild // The child game that the chooser most prefers
+        {
+            get
+            {
+                if (this.favoriteChild == null)
+                {
+                    double bestScore = -1;
+                    foreach (Analyzed_GameState child in this.Children)
+                    {
+                        Dictionary<ID<Readable_GamePlayer>, double> childProbabilities = child.WinProbabilities;
+                        double childScore = childProbabilities[this.ChoosingPlayerID];
+                        if (childScore > bestScore)
+                        {
+                            favoriteChild = child;
+                            bestScore = childScore;
+                        }
+                        if (bestScore >= 1)
+                            break;
+                    }
+                }
+                return this.favoriteChild;
+            }
+        }
+        private Analyzed_GameState favoriteChild;
+
     }
 }

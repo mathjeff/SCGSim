@@ -9,6 +9,8 @@ namespace Games
     public class Game
     {
         static int numActions = 0;
+        static int nextID;
+        private int ID;
         public Game(Referee referee)
         {
             this.Initialize();
@@ -25,6 +27,7 @@ namespace Games
         }
         private void Initialize()
         {
+            this.ID = ++nextID;
             /*this.cardsDrawn.PutWritable(new WriteControlled_Item<Dictionary<ID<ReadableCard>, ReadableCard>, Dictionary<ID<ReadableCard>, WritableCard>>
                 (new DictionaryConverter<ID<ReadableCard>, ReadableCard, WritableCard>(new CardConverter())));
             this.cardsDrawn.GetWritable().PutWritable(new Dictionary<ID<ReadableCard>, WritableCard>());
@@ -120,18 +123,8 @@ namespace Games
         {
             Game clone = new Game();
             clone.CopyFrom(this);
-            clone.SourceGame = this;
-            this.Increment_Num_ChildGames();
             return clone;
         }
-        public void Increment_Num_ChildGames()
-        {
-            this.Num_ChildGames++;
-            if (this.SourceGame != null)
-                this.SourceGame.Increment_Num_ChildGames();
-        }
-        public Game SourceGame { get; set; } // which game this game was copied from, if any
-        public int Num_ChildGames { get; set; } // how many games have this game as an ancestor
         public void CopyFrom(Game source)
         {
             this.cardsDrawn = source.cardsDrawn.Clone();
@@ -152,20 +145,20 @@ namespace Games
             this.Referee.NewTurn(this.TurnOrder.First(), this);
             while (this.Referee.GetLosers(this).Count == 0)
             {
-                //Console.WriteLine("----------------------");
-                //this.Print();
+                Console.WriteLine("----------------------");
+                this.Print();
                 this.PlayOneAction();
                 Console.Write("-");
             }
             Console.WriteLine("");
             Console.WriteLine("Game " + numActions + " over");
             numActions++;
-            /*if (numActions % 10 == 0)
+            if (numActions % 10 == 0)
             {
                 Console.WriteLine("Num Actions: =" + numActions);
                 Console.WriteLine("Time = " + DateTime.Now);
             }
-            // Someone lost; game over
+            /* // Someone lost; game over
             Console.WriteLine("Game Over. Losing players:");
             foreach (Readable_GamePlayer player in this.Referee.GetLosers(this))
             {
@@ -184,15 +177,25 @@ namespace Games
         }
         public void PlayOneAction()
         {
-            //this.DebugCheck();
             GameChoice choice = this.Get_NextChoice();
-            Readable_GamePlayer controller = this.Get_ReadableSnapshot(choice.ControllerID);
-            GameEffect effect = controller.ChooseBestAction(choice.Options, this);
-            if (choice.Options.Count() == 1 && choice.Options.First() is EndTurn_Effect && effect is PlayCard_Effect)
+            Strategy strategy = this.GetStrategy(this.Get_ReadableSnapshot(choice.ControllerID));
+            GameEffect effect = strategy.ChooseBestAction(choice, this);
+            if (!(choice.Options.Contains(effect)))
             {
-                throw new ArgumentException("wrong data type!");
+                Console.WriteLine("Strategy " + strategy + " made an invalid choice: " + effect);
+                effect = strategy.ChooseBestAction(choice, this);
             }
             effect.Process(this);
+        }
+        public Strategy GetStrategy(Readable_GamePlayer player)
+        {
+            if (this.Strategy != null)
+            {
+                // This is a hypothetical game, so all players use the same strategy as the player doing the imagining
+                return this.Strategy;
+            }
+            // This is a real game, so each player can use their own strategy
+            return player.Strategy;
         }
         public void AddChoice(GameChoice choice)
         {
