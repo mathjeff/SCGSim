@@ -37,8 +37,14 @@ namespace Games
                 // 1 Mana per turn is worth 2 mana now.
                 // This results in this score:
                 // (mana/2)+(manaPerTurn)+(activePlayer?)+((power+toughness)/2)+(log(life)/log(4/3))
+                /*
                 double score = candidate.Get_CurrentResources().ToNumber() / 2 + candidate.Get_ResourcesPerTurn().ToNumber() + activePlayerBonus +
                     (candidate.Get_Total_MonsterDamage(game) + candidate.Get_Total_MonsterHealth(game)) / 2 + Math.Log(candidate.GetHealth()) / Math.Log(4.0 / 3.0);
+                */
+                
+                double score = candidate.Get_CurrentResources().ToNumber() / 2 + candidate.Get_ResourcesPerTurn().ToNumber() + activePlayerBonus +
+                    (candidate.Get_Total_MonsterDamage(game) + candidate.Get_Total_MonsterHealth(game)) / 2 + Math.Log(candidate.GetHealth()) / Math.Log(4.0 / 3.0);
+                
                 totalScore += score;
                 if (candidate == player)
                     playerScore = score;
@@ -47,5 +53,17 @@ namespace Games
             return playerScore / totalScore;
 
         }
+
+        public Dictionary<ID<Readable_GamePlayer>, double> EstimateWinProbabilities(Game game)
+        {
+            Dictionary<ID<Readable_GamePlayer>, double> probabilities = new Dictionary<ID<Readable_GamePlayer>, double>();
+            foreach (Readable_GamePlayer player in game.Players)
+            {
+                ID<Readable_GamePlayer> playerId = player.GetID((Readable_GamePlayer)null);
+                probabilities.Add(playerId, this.EstimateWinProbability(game, playerId));
+            }
+            return probabilities;
+        }
+
     }
 }

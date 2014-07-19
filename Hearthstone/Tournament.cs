@@ -14,8 +14,9 @@ namespace Games
         }
         public void Run(int numRounds)
         {
-            int i;
-            for (i = numRounds; i > 0; i--)
+            //int i;
+            //for (i = numRounds; i > 0; i--)
+            while (true)
             {
                 this.PlayGame();
                 if (this.bestPlayer != this.Players[0])
@@ -26,8 +27,8 @@ namespace Games
                     {
                         Console.WriteLine(card.Name);
                     }
-                    Console.WriteLine("");
                 }
+                Console.WriteLine("Win ratio: " + this.bestPlayer.NumWins + "/" + (this.bestPlayer.NumWins + this.bestPlayer.NumLosses));
             }
         }
         public void PlayGame()
@@ -56,10 +57,19 @@ namespace Games
                 }
                 else
                 {
-                    winnerIndex = player2Index;
-                    loserIndex = player1Index;
+                    if (winner == player2)
+                    {
+                        winnerIndex = player2Index;
+                        loserIndex = player1Index;
+                    }
+                    else
+                    {
+                        return;
+                    }
                 }
                 loser = this.Players[loserIndex];
+                winner.NumWins++;
+                loser.NumLosses++;
 
                 if (winnerIndex > 0)
                 {

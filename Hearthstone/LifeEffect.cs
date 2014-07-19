@@ -46,8 +46,8 @@ namespace Games
             }
             if (!this.TargetRequired)
                 options.Add(new EmptyEffect());
-            GameEffect effect = controller.ChooseBestAction(options, game);
-            effect.Process(game);
+            // ask the game to choose one of these options
+            game.AddChoice(new GameChoice(options, controller.GetID((Readable_GamePlayer)null)));
         }
         public bool TargetRequired { get; set; } // whether it is valid to choose no target
         private ValueProvider<int, Controlled> amountToGain_provider;

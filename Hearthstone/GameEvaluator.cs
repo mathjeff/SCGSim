@@ -6,8 +6,9 @@ using System.Threading.Tasks;
 
 namespace Games
 {
-   public interface GameEvaluator
+    public interface GameEvaluator
     {
         double EstimateWinProbability(Game game, ID<Readable_GamePlayer> gamePlayer);
+        Dictionary<ID<Readable_GamePlayer>, double> EstimateWinProbabilities(Game game);
     }
 }

@@ -21,6 +21,11 @@ namespace Games
             ReadableCard card = game.Get_ReadableSnapshot(this.cardId);
             card.Play(game);
         }
+        public override bool IsProcessable(Game game)
+        {
+            ReadableCard card = game.Get_ReadableSnapshot(this.cardId);
+            return card.IsPlayable(game);
+        }
         private ID<ReadableCard> cardId;
     }
 }

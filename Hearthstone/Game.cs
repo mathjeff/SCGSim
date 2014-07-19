@@ -139,6 +139,7 @@ namespace Games
             this.Strategy = source.Strategy;
             this.TurnOrder = new LinkedList<ID<Readable_GamePlayer>>(source.TurnOrder);
             this.Referee = source.Referee;
+            this.pendingEffects = new LinkedList<GameChoice>(source.pendingEffects);
         }
 
         // For hypothetical games that only exist in the heads of certain players, this is that player's strategy to use for simulating the other players
@@ -151,12 +152,15 @@ namespace Games
             this.Referee.NewTurn(this.TurnOrder.First(), this);
             while (this.Referee.GetLosers(this).Count == 0)
             {
-                Console.WriteLine("----------------------");
-                this.Print();
+                //Console.WriteLine("----------------------");
+                //this.Print();
                 this.PlayOneAction();
+                Console.Write("-");
             }
+            Console.WriteLine("");
+            Console.WriteLine("Game " + numActions + " over");
             numActions++;
-            if (numActions % 10 == 0)
+            /*if (numActions % 10 == 0)
             {
                 Console.WriteLine("Num Actions: =" + numActions);
                 Console.WriteLine("Time = " + DateTime.Now);
@@ -176,14 +180,51 @@ namespace Games
             else
             {
                 Console.WriteLine("No winners");
-            }
+            }*/
         }
         public void PlayOneAction()
         {
-            Readable_GamePlayer player = this.ActivePlayer;
-            IEnumerable<GameEffect> options = this.Referee.Get_AvailableGameActions(this, player);
-            GameEffect effect = player.ChooseBestAction(options, this);
+            //this.DebugCheck();
+            GameChoice choice = this.Get_NextChoice();
+            Readable_GamePlayer controller = this.Get_ReadableSnapshot(choice.ControllerID);
+            GameEffect effect = controller.ChooseBestAction(choice.Options, this);
+            if (choice.Options.Count() == 1 && choice.Options.First() is EndTurn_Effect && effect is PlayCard_Effect)
+            {
+                throw new ArgumentException("wrong data type!");
+            }
             effect.Process(this);
+        }
+        public void AddChoice(GameChoice choice)
+        {
+            this.pendingEffects.AddLast(choice);
+        }
+        public GameChoice Get_NextChoice()
+        {
+            if (this.pendingEffects.Count > 0)
+            {
+                // a previous effect still requires a player to make a choice, so that must be done before moving on to normal options (like playing more cards, attacking, or ending the turn)
+                GameChoice choice = this.pendingEffects.First();
+                this.pendingEffects.RemoveFirst();
+                return choice;
+            }
+            // There aren't any effects still requiring user input, so now the active player can choose on of the usual choices (playing a card, attacking, ending the turn or whatever)
+            Readable_GamePlayer activePlayer = this.ActivePlayer;
+            return new GameChoice(this.Referee.Get_AvailableGameActions(this, activePlayer), activePlayer.GetID((Readable_GamePlayer)null));
+        }
+        public void DebugCheck()
+        {
+            foreach (GameChoice choice in this.pendingEffects)
+            {
+                foreach (GameEffect effect in choice.Options)
+                {
+
+                    if (!effect.IsProcessable(this))
+                    {
+                        throw new ArgumentException("Invalid effect in the pending queue" + effect);
+
+                    }
+                }
+            }
         }
         public void Print()
         {
@@ -269,6 +310,8 @@ namespace Games
         private WriteControlled_Set<Readable_GamePlayer, Writable_GamePlayer> players = new WriteControlled_Set<Readable_GamePlayer, Writable_GamePlayer>(new PlayerConverter());
         /*private Dictionary<ID<Readable_GamePlayer>, WriteControlled_Item<Readable_GamePlayer, Writable_GamePlayer>> players 
             = new Dictionary<ID<Readable_GamePlayer>,WriteControlled_Item<Readable_GamePlayer,Writable_GamePlayer>>();*/
+        private LinkedList<GameChoice> pendingEffects = new LinkedList<GameChoice>(); // effects that have triggered and require a choice from a player
+
 
 
     }

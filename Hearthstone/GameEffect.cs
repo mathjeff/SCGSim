@@ -10,6 +10,7 @@ namespace Games
     // Declares that it can run itself
     public abstract class GameEffect : Controlled
     {
+        public virtual bool IsProcessable(Game game) { return true; }
         public abstract void Process(Game game);
         public abstract GameEffect Clone(GameEffect outputType);
         public ID<Readable_GamePlayer> Get_ControllerID()

@@ -12,7 +12,7 @@ namespace Games
         {
             this.Referee = referee;
             // currently just makes a random deck
-            this.Strategy = new MiniMaxStrategy(new DefaultHearthstoneGameEvaluator(), 1);
+            this.Strategy = new MiniMaxStrategy(new DefaultHearthstoneGameEvaluator(), 1000);
             int i;
             LinkedList<ReadableCard> cards = new LinkedList<ReadableCard>();
             IList<ReadableCard> legalCards = referee.LegalCards;
@@ -39,7 +39,8 @@ namespace Games
             }
         }
         public Referee Referee { get; set; }
-
+        public int NumWins;
+        public int NumLosses;
         private List<ReadableCard> sortedDeck;
     }
 

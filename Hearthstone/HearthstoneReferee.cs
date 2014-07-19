@@ -16,6 +16,7 @@ namespace Games
             this.Starting_HandSize = 3;
             this.Max_HandSize = 10;
             this.legalCards = new List<ReadableCard>{ArgentSquire, BloodfenRaptor, EarthenRingFarseer, ChillwindYeti, AzureDrake, Sunwalker, WarGolem, IronbarkProtector};
+            //this.legalCards = new List<ReadableCard>{BloodfenRaptor};
         }
         public List<GameEffect> Get_AvailableGameActions(Game game, Readable_GamePlayer player)
         {
@@ -134,7 +135,8 @@ namespace Games
         {
             Writable_GamePlayer player = game.GetWritable(playerID);
             // gain 1 crystal
-            player.ResourcesPerTurn = player.ResourcesPerTurn.Plus(new Resource(1));
+            if (player.ResourcesPerTurn.ToNumber() < 10)
+                player.ResourcesPerTurn = player.ResourcesPerTurn.Plus(new Resource(1));
             // replenish existing crystals
             player.CurrentResources = player.ResourcesPerTurn;
             // give one attack to each monster
@@ -219,7 +221,7 @@ namespace Games
                 // The card named "Coin" that costs 0
                 SpellCard card = new SpellCard("Coin", new Resource(0));
                 // Make a trigger that happens after playing this card, which adds 1 resource this turn to the controller of the effect
-                card.Add_AfterPlayCard_Trigger(new GameTrigger<GameEffect>(new ResourceEffect(new ConstantValueProvider<Resource, Controlled>(new Resource(1)), new WritableController_Provider())));
+                //card.Add_AfterPlayCard_Trigger(new GameTrigger<GameEffect>(new ResourceEffect(new ConstantValueProvider<Resource, Controlled>(new Resource(1)), new WritableController_Provider())));
                 return card;
             }
         }

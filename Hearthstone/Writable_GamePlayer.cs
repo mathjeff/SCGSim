@@ -87,7 +87,20 @@ namespace Games
         public void AddHealth(Specific_LifeEffect effect, Game game) { this.Health = Math.Min(this.Health + effect.AmountToGain, this.MaxHealth); } // the game will check for death later
         public void InitializeHealth(int amount) { this.Health = this.MaxHealth = amount; }
         public List<ReadableCard> Territory { get; set; }
-        public Resource CurrentResources = new Resource(0);
+        public Resource CurrentResources
+        {
+            get
+            {
+                return this.currentResources;
+            }
+            set {
+                //Console.WriteLine("Setting resources to " + value.ToNumber() + " for player " + this.ID);
+                if (!value.IsValid)
+                    throw new ArgumentException("Invalid resource quantity: " + value.ToString());
+                this.currentResources = value; 
+            }
+        }
+        private Resource currentResources = new Resource(0);
         public Resource ResourcesPerTurn = new Resource(0);
         public WriteControlled_Item<IReadOnlyList<ID<Readable_MonsterCard>>, List<ID<Readable_MonsterCard>>> MonsterIDsInPlay { get; set; }
         public IReadOnlyList<ID<Readable_MonsterCard>> Get_MonsterIDsInPlay() { return this.MonsterIDsInPlay.GetReadable(); }

@@ -58,6 +58,7 @@
     <Compile Include="CauseProvider.cs" />
     <Compile Include="ChainProvider.cs" />
     <Compile Include="EndTurn_Effect.cs" />
+    <Compile Include="GameChoice.cs" />
     <Compile Include="ID.cs" />
     <Compile Include="Identifiable.cs" />
     <Compile Include="IDFactory.cs" />
