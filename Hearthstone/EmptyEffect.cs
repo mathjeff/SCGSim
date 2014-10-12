@@ -18,5 +18,9 @@ namespace Games
         {
             return new EmptyEffect();
         }
+        public override string ToString(Game game)
+        {
+            return "Do nothing";
+        }
     }
 }

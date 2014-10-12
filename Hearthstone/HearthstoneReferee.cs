@@ -15,15 +15,15 @@ namespace Games
             this.StartingHealth = 30;
             this.Starting_HandSize = 3;
             this.Max_HandSize = 10;
-            this.legalCards = new List<ReadableCard>{ArgentSquire, ElvenArcher,
-                BloodfenRaptor, RiverCrocolisk,
+            this.legalCards = new List<ReadableCard>{ZombieChow, ArgentSquire,
+                BloodfenRaptor, HauntedCreeper,
                 EarthenRingFarseer, IronfurGrizzly,
                 ChillwindYeti, SenjinShieldMasta,
-                AzureDrake,
-                Sunwalker,
+                AzureDrake, SludgeBelcher,
+                Sunwalker, CairneBloodhoof,
                 WarGolem,
                 IronbarkProtector};
-            //this.legalCards = new List<ReadableCard>{EarthenRingFarseer};
+            //this.legalCards = new List<ReadableCard>{ZombieChow, CairneBloodhoof};
         }
         public List<GameEffect> Get_AvailableGameActions(Game game, Readable_GamePlayer player)
         {
@@ -81,7 +81,7 @@ namespace Games
             }
 
             // Let the player end their turn
-            options.Add(new EndTurn_Effect());
+            options.Add(new EndTurn_Effect(player.GetID((Readable_GamePlayer)null)));
             return options;
         }
         public Game NewGame(TournamentPlayer player1, TournamentPlayer player2)
@@ -233,6 +233,17 @@ namespace Games
             }
         }
 
+        public static Readable_MonsterCard ZombieChow
+        {
+            get
+            {
+                Writable_MonsterCard card = new Writable_MonsterCard("Zombie Chow", new Resource(1), 2, 3);
+                ValueProvider<IList<Readable_LifeTarget>, Controlled> controllerProvider = new OpponentsProvider();
+                card.Add_AfterDeath_Trigger(new GameTrigger<GameEffect>(new LifeEffect(new ConstantValueProvider<int, Controlled>(5), new OpponentsProvider(), new ReadableController_Provider())));
+                return card;
+            }
+        }
+
         public static Readable_MonsterCard ArgentSquire
         {
             get
@@ -267,6 +278,18 @@ namespace Games
             get
             {
                 return new Writable_MonsterCard("River Crocolisk", new Resource(2), 2, 3);
+            }
+        }
+
+        public static Readable_MonsterCard HauntedCreeper
+        {
+            get
+            {
+                // There is a card called "Haunted Creeper" that costs 2 and is a 1/2
+                Writable_MonsterCard card = new Writable_MonsterCard("Haunted Creeper", new Resource(2), 1, 2);
+                // Add a trigger that triggers after this monster dies, which generates an effect that spawns two 1/1 monsters for the controller of this monster
+                card.Add_AfterDeath_Trigger(new GameTrigger<GameEffect>(new SpawnMonster_Effect(new Writable_MonsterCard("Insect", new Resource(1), 1, 1), new WritableController_Provider(), new ConstantValueProvider<int, Controlled>(2))));
+                return card;
             }
         }
 
@@ -323,6 +346,21 @@ namespace Games
             }
         }
 
+        public static Readable_MonsterCard SludgeBelcher
+        {
+            get
+            {
+                // There is a card called "Sludge Belcher" that costs 5 and is a 3/5
+                Writable_MonsterCard card = new Writable_MonsterCard("Sludge Belcher", new Resource(5), 3, 5);
+                card.MustBeAttacked = true; // Taunt
+                // Create a 1/2 taunt for referencing in a moment
+                Writable_MonsterCard slime = new Writable_MonsterCard("Slime", new Resource(1), 1, 2);
+                slime.MustBeAttacked = true;
+                card.Add_AfterDeath_Trigger(new GameTrigger<GameEffect>(new SpawnMonster_Effect(slime, new WritableController_Provider())));
+                return card;
+            }
+        }
+
         public static Readable_MonsterCard Sunwalker
         {
             get
@@ -330,6 +368,17 @@ namespace Games
                 Writable_MonsterCard card = new Writable_MonsterCard("Sunwalker", new Resource(6), 4, 5);
                 card.Add_SingleUse_Shield(); // Divine Shield
                 card.MustBeAttacked = true;  // Taunt
+                return card;
+            }
+        }
+
+        public static Readable_MonsterCard CairneBloodhoof
+        {
+            get
+            {
+                Writable_MonsterCard card = new Writable_MonsterCard("Cairne Bloodhoof", new Resource(6), 4, 5);
+                Writable_MonsterCard reincarnation = new Writable_MonsterCard("Baine Bloodhoof", new Resource(4), 4, 5);
+                card.Add_AfterDeath_Trigger(new GameTrigger<GameEffect>(new SpawnMonster_Effect(reincarnation, new WritableController_Provider())));
                 return card;
             }
         }

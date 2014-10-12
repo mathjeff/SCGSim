@@ -10,5 +10,6 @@ namespace Games
     {
         int GetHealth();
         int GetMaxHealth();
+        string ToString(Game game);
     }
 }

@@ -21,6 +21,10 @@ namespace Games
             Specific_LifeEffect effectToScale = this.LifeSource_Provider.GetValue(this, game, (Specific_LifeEffect)null);
             effectToScale.AmountToGain = (int)(((double)effectToScale.AmountToGain) * this.scale);
         }
+        public override string ToString(Game game)
+        {
+            return "Multiply life effect by " + this.scale;
+        }
         public override TriggeredGameEffect<Specific_LifeEffect> Clone(TriggeredGameEffect<Specific_LifeEffect> outputType)
         {
             LifeSourceMultiplierEffect clone = new LifeSourceMultiplierEffect(this.scale, this.LifeSource_Provider);

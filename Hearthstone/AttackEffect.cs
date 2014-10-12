@@ -22,6 +22,12 @@ namespace Games
             Writable_LifeTarget attacker = game.GetWritable(this.attackerID);
             attacker.Attack(this.defenderID, game);
         }
+        public override string ToString(Game game)
+        {
+            Readable_LifeTarget attacker = game.Get_ReadableSnapshot(this.attackerID);
+            Readable_LifeTarget defender = game.Get_ReadableSnapshot(this.defenderID);
+            return attacker.ToString(game) + " attacks " + defender.ToString(game);
+        }
         private ID<Readable_LifeTarget> attackerID;
         private ID<Readable_LifeTarget> defenderID;
     }

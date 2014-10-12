@@ -12,7 +12,9 @@ namespace Games
         int Get_OriginalDamage();
         int Get_OriginalHealth();
         List<GameTrigger<Specific_LifeEffect>> Get_BeforeReceivingDamage_Triggers();
+        List<GameTrigger<GameEffect>> Get_AfterDeath_Triggers();
         bool Get_MustBeAttacked();
         bool Get_CanAttack();
+        Writable_MonsterCard Clone(Writable_MonsterCard outputType);
     }
 }

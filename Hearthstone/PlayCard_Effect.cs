@@ -26,6 +26,11 @@ namespace Games
             ReadableCard card = game.Get_ReadableSnapshot(this.cardId);
             return card.IsPlayable(game);
         }
+        public override string ToString(Game game)
+        {
+            ReadableCard card = game.Get_ReadableSnapshot(this.cardId);
+            return "Play " + card.ToString(game);
+        }
         private ID<ReadableCard> cardId;
     }
 }

@@ -16,11 +16,11 @@ namespace Games
         {
             this.EffectToTrigger = effectWhenTriggered;
         }
-        public void Trigger(TTriggerType cause, ID<Readable_GamePlayer> controllerID, Game game)
+        public void Trigger(TTriggerType cause, ID<Readable_GamePlayer> triggerController_ID, Game game)
         {
             TriggeredGameEffect<TTriggerType> effect = this.EffectToTrigger.Clone((TriggeredGameEffect<TTriggerType>)null);
             effect.Cause = cause;
-            effect.ControllerID = controllerID;
+            effect.ControllerID = triggerController_ID;
             effect.Process(game);
         }
         public GameTrigger<TTriggerType> Clone(GameTrigger<TTriggerType> outputType)

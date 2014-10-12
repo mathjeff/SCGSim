@@ -13,6 +13,7 @@ namespace Games
         public virtual bool IsProcessable(Game game) { return true; }
         public abstract void Process(Game game);
         public abstract GameEffect Clone(GameEffect outputType);
+        public abstract string ToString(Game game);
         public ID<Readable_GamePlayer> Get_ControllerID()
         {
             return new ID<Readable_GamePlayer>(this.controllerID);

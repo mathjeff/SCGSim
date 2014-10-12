@@ -31,6 +31,10 @@ namespace Games
             this.Add_BeforeReceiveDamage_Trigger(new GameTrigger<Specific_LifeEffect>(new LifeSourceMultiplierEffect(0, new TriggerProvider<Specific_LifeEffect>())));
         }
 
+        public void Add_AfterDeath_Trigger(GameTrigger<GameEffect> trigger)
+        {
+            this.afterDeath_triggers.Add(trigger);
+        }
         #endregion
 
         #region Cloning etc
@@ -50,7 +54,8 @@ namespace Games
             this.Damage = this.originalDamage = original.GetDamage();
             this.Health = original.GetHealth();
             this.originalHealth = original.GetMaxHealth();
-            this.beforeReceivingDamage_Triggers =  new List<GameTrigger<Specific_LifeEffect>>(original.Get_BeforeReceivingDamage_Triggers());
+            this.beforeReceivingDamage_Triggers = new List<GameTrigger<Specific_LifeEffect>>(original.Get_BeforeReceivingDamage_Triggers());
+            this.afterDeath_triggers = new List<GameTrigger<GameEffect>>(original.Get_AfterDeath_Triggers());
             this.MustBeAttacked = original.Get_MustBeAttacked();
             base.CopyFrom(original);
         }
@@ -117,19 +122,25 @@ namespace Games
             this.Health += effect.AmountToGain;
             // check for death
             if (this.Health <= 0)
-            {
-                // TODO: process any on-death effects
-                // inform the controller
-                Writable_GamePlayer controller = game.GetWritable(this.ControllerID);
-                controller.MonsterIDsInPlay.GetWritable().Remove(this.GetID((Readable_MonsterCard)null));
-            }
+                this.Destroy(effect, game);
             this.Health = Math.Min(this.Health, this.originalHealth);
+        }
+        public void Destroy(GameEffect cause, Game game)
+        {
+            // inform the controller
+            Writable_GamePlayer controller = game.GetWritable(this.ControllerID);
+            controller.MonsterIDsInPlay.GetWritable().Remove(this.GetID((Readable_MonsterCard)null));
+            // process any on-death effects
+            GameTrigger_Factory.TriggerAll<GameEffect>(this.afterDeath_triggers, cause, this.ControllerID, game);
         }
         public bool MustBeAttacked { get; set; }
         public bool Get_MustBeAttacked() { return this.MustBeAttacked; }
 
         public List<GameTrigger<Specific_LifeEffect>> Get_BeforeReceivingDamage_Triggers() { return this.beforeReceivingDamage_Triggers; }
         private List<GameTrigger<Specific_LifeEffect>> beforeReceivingDamage_Triggers = new List<GameTrigger<Specific_LifeEffect>>();
+
+        public List<GameTrigger<GameEffect>> Get_AfterDeath_Triggers() { return this.afterDeath_triggers; }
+        private List<GameTrigger<GameEffect>> afterDeath_triggers = new List<GameTrigger<GameEffect>>();
 
         #endregion
 

@@ -14,7 +14,7 @@ namespace Games
         WritableCard Clone(WritableCard outputType);
         bool IsPlayable(Game game);
         void Play(Game game); // casts this card or puts it into play
-        String ToString(Game game);
+        string ToString(Game game);
         IEnumerable<GameTrigger<GameEffect>> Get_AfterPlay_Triggers();
     }
 

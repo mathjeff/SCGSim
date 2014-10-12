@@ -33,6 +33,12 @@ namespace Games
             else
                 writablePlayer.CurrentResources = new Resource(0);
         }
+        public override string ToString(Game game)
+        {
+            Readable_GamePlayer player = this.playerProvider.GetValue(this.Cause, game, (Writable_GamePlayer)null);
+            Resource bonusResources = this.resourcesToGain_provider.GetValue(this.Cause, game, (Resource)null);
+            return player.ToString() + " gains " + bonusResources.ToString();
+        }
         private ValueProvider<Writable_GamePlayer, Controlled> playerProvider;
         private ValueProvider<Resource, Controlled> resourcesToGain_provider;
     }

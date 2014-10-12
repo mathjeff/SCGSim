@@ -23,6 +23,18 @@ namespace Games
                 effect.Process(game);
             }
         }
+        public override string ToString(Game game)
+        {
+            string result = "";
+            foreach (GameEffect effect in this.subEffects)
+            {
+                if (result.Length > 0)
+                    result += " and ";
+                result += effect.ToString(game);
+            }
+            return result;
+
+        }
         private IEnumerable<GameEffect> subEffects;
     }
 }

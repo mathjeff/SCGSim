@@ -27,6 +27,25 @@ namespace Games
             Writable_LifeTarget target = game.GetWritable(this.TargetID);
             target.AddHealth(this, game);
         }
+        public override string ToString(Game game)
+        {
+            Readable_LifeTarget target = game.Get_ReadableSnapshot(this.TargetID);
+            int amount = this.AmountToGain;
+            string result = target.ToString();
+            if (amount > 0)
+            {
+                result += " gains ";
+            }
+            else
+            {
+                result += " loses ";
+                amount *= -1;
+            }
+            result += amount.ToString() + " hitpoint";
+            if (amount != 1)
+                result += "s";
+            return result;
+        }
 
     }
 }

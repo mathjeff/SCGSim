@@ -52,6 +52,13 @@ namespace Games
                 player.TryToDrawCard(card, game);
             }
         }
+        public override string ToString(Game game)
+        {
+            int numCards = this.numCards_provider.GetValue(this, game, default(int));
+            string cardSource = this.cardProvider.ToString();
+            Readable_GamePlayer player = this.playerProvider.GetValue(this, game, (Writable_GamePlayer)null);
+            return "Draw " + numCards + " from " + cardSource + " for " + player;
+        }
         private ValueProvider<Writable_GamePlayer, Controlled> playerProvider;
         private ValueProvider<ReadableCard, Controlled> cardProvider;
         private ValueProvider<int, Controlled> numCards_provider;

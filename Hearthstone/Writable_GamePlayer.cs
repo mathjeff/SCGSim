@@ -97,7 +97,6 @@ namespace Games
             // the game will check for death later
         }
         public void InitializeHealth(int amount) { this.Health = this.MaxHealth = amount; }
-        public List<ReadableCard> Territory { get; set; }
         public Resource CurrentResources
         {
             get
@@ -188,9 +187,18 @@ namespace Games
             Console.WriteLine(" Field:");
             foreach (ID<Readable_MonsterCard> cardId in this.MonsterIDsInPlay.GetReadable())
             {
-                Readable_MonsterCard card = game.Get_ReadableSnapshot(cardId);
+                ReadableCard card = game.Get_ReadableSnapshot(cardId);
                 Console.WriteLine(card.ToString(game));
             }
+        }
+
+        public string ToString(Game game)
+        {
+            return this.ToString();
+        }
+        public override string ToString()
+        {
+            return "Player " + this.ID;
         }
 
         private Referee Referee

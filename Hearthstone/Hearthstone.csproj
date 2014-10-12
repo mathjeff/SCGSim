@@ -67,6 +67,7 @@
     <Compile Include="ReadableSet.cs" />
     <Compile Include="Readable_LifeTarget.cs" />
     <Compile Include="ReadWriteConverter.cs" />
+    <Compile Include="SpawnMonster_Effect.cs" />
     <Compile Include="Specific_LifeEffect.cs" />
     <Compile Include="WriteControlled_Set.cs" />
     <Compile Include="WriteControlled_Item.cs" />

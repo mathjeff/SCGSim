@@ -258,6 +258,23 @@ namespace Games
             return this.players.GetReadable(playerId);
         }
 
+        public Readable_LifeTarget Get_ReadableSnapshot(ID<Readable_LifeTarget> targetId)
+        {
+            // First check whether this is a player
+            Readable_GamePlayer player;
+            bool isPlayer = this.players.TryGetReadable(new ID<Readable_GamePlayer>(targetId.ToInt()), out player);
+            if (isPlayer)
+                return player;
+
+            // If a life target isn't a player, then it's a card
+            ReadableCard card = this.cardsDrawn.GetReadable(targetId.AsType((ReadableCard)null));
+            bool isCard = this.cardsDrawn.TryGetReadable(targetId.AsType((ReadableCard)null), out card);
+            if (isCard)
+                return card as Readable_LifeTarget;
+            // error: not found
+            return null;
+        }
+
         #endregion
 
         #region Retrieving Modifiable Entities

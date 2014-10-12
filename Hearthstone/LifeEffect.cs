@@ -50,6 +50,12 @@ namespace Games
             // ask the game to choose one of these options
             game.AddChoice(new GameChoice(options, controller.GetID((Readable_GamePlayer)null)));
         }
+        public override string ToString(Game game)
+        {
+            int amountToGain = this.amountToGain_provider.GetValue(this, game, default(int));
+            Readable_GamePlayer controller = this.chooserProvider.GetValue(this, game, (Readable_GamePlayer)null);
+            return controller.ToString() + " heals a target for " + amountToGain;
+        }
         public bool TargetRequired { get; set; } // whether it is valid to choose no target
         private ValueProvider<int, Controlled> amountToGain_provider;
         private ValueProvider<IList<Readable_LifeTarget>, Controlled> targetsProvider;
