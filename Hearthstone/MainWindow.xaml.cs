@@ -29,12 +29,8 @@ namespace Games
         void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
             Console.WriteLine("Time = " + DateTime.Now);
-            Tournament tournament = new Tournament(new HearthstoneReferee());
-            for (int i = 0; i < 100; i++)
-            {
-                tournament.Players.Add(tournament.MakeNewPlayer());
-            }
-            tournament.Run(10000);
+            Tournament tournament = new Tournament(new HearthstoneReferee(), 10);
+            tournament.Run();
         }
     }
 }

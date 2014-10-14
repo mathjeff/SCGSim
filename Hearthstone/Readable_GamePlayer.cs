@@ -18,7 +18,7 @@ namespace Games
         int Get_Total_MonsterDamage(Game game);
         int Get_Total_MonsterHealth(Game game);
         IReadOnlyList<ID<Readable_MonsterCard>> Get_MonsterIDsInPlay();
-        Strategy Strategy { get; }
+        GameStrategy Strategy { get; }
         void Print(Game game);
         int Get_NumDrawsSkipped();
     }

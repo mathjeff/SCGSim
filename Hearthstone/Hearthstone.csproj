@@ -57,11 +57,15 @@
     <Compile Include="BiConverter.cs" />
     <Compile Include="CauseProvider.cs" />
     <Compile Include="ChainProvider.cs" />
+    <Compile Include="ChoiceEffect.cs" />
+    <Compile Include="DeckMutationStrategy.cs" />
+    <Compile Include="DeckStrategy.cs" />
     <Compile Include="EndTurn_Effect.cs" />
     <Compile Include="GameChoice.cs" />
     <Compile Include="ID.cs" />
     <Compile Include="Identifiable.cs" />
     <Compile Include="IDFactory.cs" />
+    <Compile Include="MonstersProvider.cs" />
     <Compile Include="PlayCard_Effect.cs" />
     <Compile Include="ReadableDictionary.cs" />
     <Compile Include="ReadableSet.cs" />
@@ -103,7 +107,7 @@
     <Compile Include="TournamentPlayer.cs" />
     <Compile Include="Randomness.cs" />
     <Compile Include="Referee.cs" />
-    <Compile Include="Strategy.cs" />
+    <Compile Include="GameStrategy.cs" />
     <Compile Include="Tournament.cs" />
     <Compile Include="ValueProvider.cs" />
     <Compile Include="WritableQueue.cs" />

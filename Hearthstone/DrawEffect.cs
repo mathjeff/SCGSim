@@ -8,6 +8,11 @@ namespace Games
 {
     class DrawEffect : TriggeredGameEffect<GameEffect>
     {
+        // A DrawEffect that has its controller draw 1 card from his/her deck
+        public DrawEffect()
+        {
+            this.Initialize(new WritableController_Provider(), DrawFromDeck_Provider.FromController(), new ConstantValueProvider<int, Controlled>(1));
+        }
         // A DrawEffect that has a particular player draw 1 card from his/her deck
         public DrawEffect(ValueProvider<Writable_GamePlayer, Controlled> playerProvider)
         {

@@ -147,7 +147,7 @@ namespace Games
 
         #endregion
 
-        public Strategy Strategy
+        public GameStrategy Strategy
         {
             get
             {

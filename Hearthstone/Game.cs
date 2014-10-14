@@ -103,6 +103,7 @@ namespace Games
         {
             return this.Referee.GetLosers(this);
         }
+        // returns all valid LifeTargets in play (monsters and players)
         public IList<Readable_LifeTarget> Get_LifeTargets()
         {
             List<Readable_LifeTarget> targets = new List<Readable_LifeTarget>();
@@ -110,6 +111,20 @@ namespace Games
             {
                 Readable_GamePlayer player = this.players.GetReadable(playerId);
                 targets.Add(player);
+            }
+            foreach (Readable_MonsterCard monster in this.Get_MonstersInPlay())
+            {
+                targets.Add(monster);
+            }
+            return targets;
+        }
+        // returns all monsters in play
+        public IList<Readable_MonsterCard> Get_MonstersInPlay()
+        {
+            List<Readable_MonsterCard> targets = new List<Readable_MonsterCard>();
+            foreach (ID<Readable_GamePlayer> playerId in this.players.GetKeys())
+            {
+                Readable_GamePlayer player = this.players.GetReadable(playerId);
                 foreach (ID<Readable_MonsterCard> monsterId in player.Get_MonsterIDsInPlay())
                 {
                     Readable_MonsterCard monster = this.Get_ReadableSnapshot(monsterId);
@@ -136,7 +151,8 @@ namespace Games
         }
 
         // For hypothetical games that only exist in the heads of certain players, this is that player's strategy to use for simulating the other players
-        public Strategy Strategy { get; set; }
+        public GameStrategy Strategy { get; set; }
+        public bool ShouldPrint { get; set; }
 
         public void Play()
         {
@@ -145,8 +161,11 @@ namespace Games
             this.Referee.NewTurn(this.TurnOrder.First(), this);
             while (this.Referee.GetLosers(this).Count == 0)
             {
-                Console.WriteLine("----------------------");
-                this.Print();
+                if (this.ShouldPrint)
+                {
+                    Console.WriteLine("----------------------");
+                    this.Print();
+                }
                 this.PlayOneAction();
                 Console.Write("-");
             }
@@ -178,16 +197,20 @@ namespace Games
         public void PlayOneAction()
         {
             GameChoice choice = this.Get_NextChoice();
-            Strategy strategy = this.GetStrategy(this.Get_ReadableSnapshot(choice.ControllerID));
+            GameStrategy strategy = this.GetStrategy(this.Get_ReadableSnapshot(choice.ControllerID));
             GameEffect effect = strategy.ChooseBestAction(choice, this);
             if (!(choice.Options.Contains(effect)))
             {
-                Console.WriteLine("Strategy " + strategy + " made an invalid choice: " + effect);
+                Console.WriteLine("GameStrategy " + strategy + " made an invalid choice: " + effect);
                 effect = strategy.ChooseBestAction(choice, this);
+            }
+            if (this.ShouldPrint)
+            {
+                Console.WriteLine(effect.ToString(this));
             }
             effect.Process(this);
         }
-        public Strategy GetStrategy(Readable_GamePlayer player)
+        public GameStrategy GetStrategy(Readable_GamePlayer player)
         {
             if (this.Strategy != null)
             {
@@ -199,7 +222,16 @@ namespace Games
         }
         public void AddChoice(GameChoice choice)
         {
-            this.pendingEffects.AddLast(choice);
+            if (choice.Options.Count() == 1)
+            {
+                // if there's only one option, we might as well resolve it now rather than queuing up a decision to ask the player about later
+                GameEffect effect = choice.Options.First();
+                effect.Process(this);
+            }
+            else
+            {
+                this.pendingEffects.AddLast(choice);
+            }
         }
         public GameChoice Get_NextChoice()
         {

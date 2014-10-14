@@ -40,7 +40,7 @@ namespace Games
         // Creates a GameEffect that allows the given player to choose a target and then add the given (signed) health to it
         public LifeEffect New_LifeEffect(ValueProvider<Double> quantityProvider, ValueProvider<IList<Readable_LifeTarget>> targetOptions_provider, ValueProvider<Readable_GamePlayer> controllerProvider)
         {
-            LifeEffect effect = new LifeEffect(quantityProvider, targetOptions_provider, controllerProvider);
+            LifeEffect effect = LifeEffect.Targeted(quantityProvider, targetOptions_provider, controllerProvider);
             this.connect(effect);
             return effect;
         }

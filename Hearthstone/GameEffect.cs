@@ -29,6 +29,10 @@ namespace Games
                 this.controllerID = value.ToInt();
             }
         }
+        public void CopyFrom(GameEffect original)
+        {
+            this.controllerID = original.controllerID;
+        }
         private int controllerID;
     }
 
@@ -40,6 +44,7 @@ namespace Games
         public override GameEffect Clone(GameEffect outputType) { return this.Clone((TriggeredGameEffect<TTriggerType>)null); }
         public void CopyFrom(TriggeredGameEffect<TTriggerType> other)
         {
+            base.CopyFrom(other);
             this.Cause = other.Cause;
         }
     }

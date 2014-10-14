@@ -21,7 +21,8 @@ namespace Games
             }
             if (game.GetLosers().Count == game.NumPlayers)
             {
-                return 1.0 / game.NumPlayers;
+                return 0;
+                //return 1.0 / game.NumPlayers;
             }
             // Now compute a heuristic based on how much stuff each player has
             double totalScore = 0;
@@ -45,7 +46,10 @@ namespace Games
                 double score = candidate.Get_CurrentResources().ToNumber() * activePlayer + candidate.Get_ResourcesPerTurn().ToNumber() * 2
                     + (candidate.Get_Total_MonsterDamage(game) + candidate.Get_Total_MonsterHealth(game)) / 2 + Math.Log(candidate.GetHealth()) / Math.Log(4.0 / 3.0) + activePlayer * -1.5
                     + candidate.Get_ReadableHand().Count;
-                
+
+                if (score < 1) // can't have 0 or less probability of winning unless you've actually lost already
+                    score = 1;
+
                 totalScore += score;
                 if (candidate == player)
                     playerScore = score;

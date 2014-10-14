@@ -31,7 +31,7 @@ namespace Games
         {
             Readable_LifeTarget target = game.Get_ReadableSnapshot(this.TargetID);
             int amount = this.AmountToGain;
-            string result = target.ToString();
+            string result = target.ToString(game);
             if (amount > 0)
             {
                 result += " gains ";

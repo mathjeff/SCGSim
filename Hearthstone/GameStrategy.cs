@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Games
 {
-    public interface Strategy
+    public interface GameStrategy
     {
         GameEffect ChooseBestAction(GameChoice choice, Game game);
     }

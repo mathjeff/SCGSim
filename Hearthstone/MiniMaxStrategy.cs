@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Games
 {
-    class MiniMaxStrategy : Strategy
+    class MiniMaxStrategy : GameStrategy
     {
         public MiniMaxStrategy(GameEvaluator evaluationHeuristic, int numTimeSteps)
         {
@@ -31,11 +31,15 @@ namespace Games
             {
                 // Find the current best path and explore it for one more time unit
                 this.ProcessOnce(rootState);
+                double winProbability = rootState.WinProbabilities[choice.ControllerID];
+                if (winProbability == 0 || winProbability == 1)
+                    break;
             }
-#if false
-            Console.WriteLine("Plan for " + chooser.ToString());
-            rootState.printBestPath();
-#endif
+            if (this.ShouldPrint)
+            {
+                Console.WriteLine("Plan for " + chooser.ToString());
+                rootState.printBestPath();
+            }
             return rootState.FavoriteChild.SourceEffect;
         }
         private void ProcessOnce(Analyzed_GameState gameState)
@@ -51,6 +55,10 @@ namespace Games
         }
         private void PutGameOptions(Analyzed_GameState gameState, GameChoice choice)
         {
+            if (choice.Options.Count() < 1)
+            {
+                Console.WriteLine("Error: a GameChoice must always have options");
+            }
             gameState.ChoosingPlayerID = choice.ControllerID;
             foreach (GameEffect effect in choice.Options)
             {
@@ -72,6 +80,7 @@ namespace Games
         }*/
         public GameEvaluator GameEvaluator { get; set; }
         public int NumTimeSteps { get; set; }
+        public bool ShouldPrint;
 
     }
 
@@ -83,6 +92,13 @@ namespace Games
             this.SourceEffect = sourceEffect;
             //this.ChoosingPlayerID = choosingPlayerID;
             this.winProbabilities = winProbabilities;
+            foreach (KeyValuePair<ID<Readable_GamePlayer>, double> entry in winProbabilities)
+            {
+                if (entry.Value < 0)
+                {
+                    Console.WriteLine("Error: cannot have negative win probability");
+                }
+            }
             this.Parent = parent;
         }
         public Game Game; // the state of the game

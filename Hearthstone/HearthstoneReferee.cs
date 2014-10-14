@@ -15,15 +15,16 @@ namespace Games
             this.StartingHealth = 30;
             this.Starting_HandSize = 3;
             this.Max_HandSize = 10;
-            this.legalCards = new List<ReadableCard>{ZombieChow, ArgentSquire,
-                BloodfenRaptor, HauntedCreeper,
-                EarthenRingFarseer, IronfurGrizzly,
-                ChillwindYeti, SenjinShieldMasta,
-                AzureDrake, SludgeBelcher,
-                Sunwalker, CairneBloodhoof,
-                WarGolem,
-                IronbarkProtector};
-            //this.legalCards = new List<ReadableCard>{ZombieChow, CairneBloodhoof};
+            this.legalCards = new List<ReadableCard>{LeperGnome, ArgentSquire, ZombieChow, ElvenArcher,
+                BloodfenRaptor, HauntedCreeper, LootHorder, Wrath,
+                EarthenRingFarseer, IronfurGrizzly, ArcaneIntellect, FanOfKnives,
+                ChillwindYeti, SenjinShieldMasta, Fireball, Hellfire,
+                AzureDrake, SludgeBelcher, Starfall, SilverHandKnight,
+                Sunwalker, CairneBloodhoof, FireElemental, Starfire,
+                WarGolem, Sprint, Flamestrike,
+                IronbarkProtector,
+                Cenarius};
+            //this.legalCards = new List<ReadableCard>{LeperGnome, ElvenArcher};
         }
         public List<GameEffect> Get_AvailableGameActions(Game game, Readable_GamePlayer player)
         {
@@ -89,6 +90,13 @@ namespace Games
             List<TournamentPlayer> players = new List<TournamentPlayer>();
             players.Add(player1);
             players.Add(player2);
+            foreach (ReadableCard card in player1.MainDeck)
+            {
+                if (player2.MainDeck.Contains(card))
+                {
+                    Console.WriteLine("Error: two players have the same instance of a card in their deck");
+                }
+            }
             return this.NewGame(players);
         }
         public Game NewGame(List<TournamentPlayer> players)
@@ -239,7 +247,7 @@ namespace Games
             {
                 Writable_MonsterCard card = new Writable_MonsterCard("Zombie Chow", new Resource(1), 2, 3);
                 ValueProvider<IList<Readable_LifeTarget>, Controlled> controllerProvider = new OpponentsProvider();
-                card.Add_AfterDeath_Trigger(new GameTrigger<GameEffect>(new LifeEffect(new ConstantValueProvider<int, Controlled>(5), new OpponentsProvider(), new ReadableController_Provider())));
+                card.Add_AfterDeath_Trigger(new GameTrigger<GameEffect>(LifeEffect.Targeted(new ConstantValueProvider<int, Controlled>(5), new OpponentsProvider(), new ReadableController_Provider())));
                 return card;
             }
         }
@@ -254,13 +262,24 @@ namespace Games
             }
         }
 
+        public static Readable_MonsterCard LeperGnome
+        {
+            get
+            {
+                Writable_MonsterCard card = new Writable_MonsterCard("Leper Gnome", new Resource(1), 2, 1);
+                // 2 damage to the opponent when it dies
+                card.Add_AfterDeath_Trigger(new GameTrigger<GameEffect>(LifeEffect.Targeted(new ConstantValueProvider<int, Controlled>(-2), new OpponentsProvider(), new ReadableController_Provider())));
+                return card;
+            }
+        }
+
         public static Readable_MonsterCard ElvenArcher
         {
             get
             {
-                Writable_MonsterCard card = new Writable_MonsterCard("ElvenArcher", new Resource(1), 1, 1);
+                Writable_MonsterCard card = new Writable_MonsterCard("Elven Archer", new Resource(1), 1, 1);
                 // Deals 1 damage when it comes into play
-                card.Add_AfterPlayCard_Trigger(new GameTrigger<GameEffect>(new LifeEffect(new ConstantValueProvider<int, Controlled>(-1), new LifeTarget_Choices_Provider(), new ReadableController_Provider())));
+                card.Add_AfterPlayCard_Trigger(new GameTrigger<GameEffect>(LifeEffect.Targeted(new ConstantValueProvider<int, Controlled>(-1), new LifeTarget_Choices_Provider(), new ReadableController_Provider())));
                 return card;
             }
         }
@@ -293,6 +312,32 @@ namespace Games
             }
         }
 
+        public static Readable_MonsterCard LootHorder
+        {
+            get
+            {
+                Writable_MonsterCard card = new Writable_MonsterCard("Loot Horder", new Resource(2), 2, 1);
+                card.Add_AfterDeath_Trigger(new GameTrigger<GameEffect>(new DrawEffect(new WritableController_Provider())));
+                return card;
+            }
+        }
+
+        public static SpellCard Wrath
+        {
+            get
+            {
+                SpellCard card = new SpellCard("Wrath", new Resource(2));
+
+                GameEffect bigDamage = LifeEffect.Targeted(new ConstantValueProvider<int, Controlled>(-3), new AllMonsters_Provider(), new ReadableController_Provider());
+                
+                GameEffect smallDamage = LifeEffect.Targeted(new ConstantValueProvider<int, Controlled>(-1), new AllMonsters_Provider(), new ReadableController_Provider());
+                GameEffect draw = new DrawEffect(new WritableController_Provider());
+
+                card.Add_AfterPlayCard_Trigger(new GameTrigger<GameEffect>(new ChoiceEffect(bigDamage, new Composite_GameEffect(smallDamage, draw))));
+                return card;
+            }
+        }
+
 
         public static Readable_MonsterCard EarthenRingFarseer
         {
@@ -301,7 +346,7 @@ namespace Games
                 // There is a monster called "Earthen Ring Farseer" that costs 3 and is a 3/3
                 Writable_MonsterCard card = new Writable_MonsterCard("Earthen Ring Farseer", new Resource(3), 3, 3);
                 // Make a trigger that triggers after playing this card, which generates an effect that provides 3 life to the controller of the effect
-                card.Add_AfterPlayCard_Trigger(new GameTrigger<GameEffect>(new LifeEffect(new ConstantValueProvider<int, Controlled>(3), new LifeTarget_Choices_Provider(), new ReadableController_Provider())));
+                card.Add_AfterPlayCard_Trigger(new GameTrigger<GameEffect>(LifeEffect.Targeted(new ConstantValueProvider<int, Controlled>(3), new LifeTarget_Choices_Provider(), new ReadableController_Provider())));
                 return card;
             }
         }
@@ -314,6 +359,37 @@ namespace Games
                 return card;
             }
         }
+
+        public static SpellCard ArcaneIntellect
+        {
+            get
+            {
+                SpellCard card = new SpellCard("Arcane Intellect", new Resource(3));
+                card.Add_AfterPlayCard_Trigger(new GameTrigger<GameEffect>(new DrawEffect(new WritableController_Provider(), DrawFromDeck_Provider.FromController(), new ConstantValueProvider<int, Controlled>(2))));
+                return card;
+            }
+        }
+
+        public static SpellCard FanOfKnives
+        {
+            get
+            {
+                SpellCard card = new SpellCard("Fan of Knives", new Resource(3));
+                card.Add_AfterPlayCard_Trigger(new GameTrigger<GameEffect>(LifeEffect.Blanket(new ConstantValueProvider<int, Controlled>(-1), new EnemyMonsters_Provider(), new ReadableController_Provider())));
+                card.Add_AfterPlayCard_Trigger(new GameTrigger<GameEffect>(new DrawEffect()));
+                return card;
+            }
+        }
+
+        /*public static Readable_MonsterCard KingMukla
+        { 
+            get
+            {
+                Writable_MonsterCard card = new Writable_MonsterCard("King Mukla", new Resource(3), 5, 5);
+                //card.Add_AfterPlayCard_Trigger(new GameTrigger<GameEffect>(new DrawEffect(new OpponentsProvider(), new ConstantValueProvider<ReadableCard, Controlled>(new SpellCard))))
+                return card;
+            }
+        }*/
 
         public static Readable_MonsterCard ChillwindYeti
         {
@@ -329,6 +405,26 @@ namespace Games
             {
                 Writable_MonsterCard card = new Writable_MonsterCard("Sen'jin SheildMasta", new Resource(4), 3, 5);
                 card.MustBeAttacked = true;
+                return card;
+            }
+        }
+
+        public static SpellCard Fireball
+        {
+            get
+            {
+                SpellCard card = new SpellCard("Fireball", new Resource(4));
+                card.Add_AfterPlayCard_Trigger(new GameTrigger<GameEffect>(LifeEffect.Targeted(new ConstantValueProvider<int, Controlled>(-6), new LifeTarget_Choices_Provider(), new ReadableController_Provider())));
+                return card;
+            }
+        }
+
+        public static SpellCard Hellfire
+        {
+            get
+            {
+                SpellCard card = new SpellCard("Hellfire", new Resource(4));
+                card.Add_AfterPlayCard_Trigger(new GameTrigger<GameEffect>(LifeEffect.Blanket(new ConstantValueProvider<int, Controlled>(-3), new LifeTarget_Choices_Provider(), new ReadableController_Provider())));
                 return card;
             }
         }
@@ -361,6 +457,29 @@ namespace Games
             }
         }
 
+        public static SpellCard Starfall
+        {
+            get
+            {
+                SpellCard card = new SpellCard("Starfall", new Resource(5));
+                GameEffect blanket = LifeEffect.Blanket(new ConstantValueProvider<int, Controlled>(-2), new EnemyMonsters_Provider(), new ReadableController_Provider());
+                GameEffect target = LifeEffect.Targeted(new ConstantValueProvider<int, Controlled>(-5), new EnemyMonsters_Provider(), new ReadableController_Provider());
+                card.Add_AfterPlayCard_Trigger(new GameTrigger<GameEffect>(new ChoiceEffect(blanket, target)));
+                return card;
+            }
+        }
+
+        public static Readable_MonsterCard SilverHandKnight
+        {
+            get
+            {
+                Writable_MonsterCard card = new Writable_MonsterCard("Silver Hand Knight", new Resource(5), 4, 4);
+                Writable_MonsterCard squire = new Writable_MonsterCard("Squire", new Resource(1), 2, 2);
+                card.Add_AfterPlayCard_Trigger(new GameTrigger<GameEffect>(new SpawnMonster_Effect(squire)));
+                return card;
+            }
+        }
+
         public static Readable_MonsterCard Sunwalker
         {
             get
@@ -383,6 +502,27 @@ namespace Games
             }
         }
 
+        public static Readable_MonsterCard FireElemental
+        {
+            get
+            {
+                Writable_MonsterCard card = new Writable_MonsterCard("Fire Elemental", new Resource(6), 6, 5);
+                card.Add_AfterPlayCard_Trigger(new GameTrigger<GameEffect>(LifeEffect.Targeted(new ConstantValueProvider<int, Controlled>(-3), new LifeTarget_Choices_Provider(), new ReadableController_Provider())));
+                return card;
+            }
+        }
+
+        public static SpellCard Starfire
+        {
+            get
+            {
+                SpellCard card = new SpellCard("Starfire", new Resource(6));
+                card.Add_AfterPlayCard_Trigger(new GameTrigger<GameEffect>(LifeEffect.Targeted(new ConstantValueProvider<int, Controlled>(-5), new LifeTarget_Choices_Provider(), new ReadableController_Provider())));
+                card.Add_AfterPlayCard_Trigger(new GameTrigger<GameEffect>(new DrawEffect(new WritableController_Provider())));
+                return card;
+            }
+        }
+
         public static Readable_MonsterCard WarGolem
         {
             get
@@ -392,12 +532,46 @@ namespace Games
             }
         }
 
+        public static SpellCard Sprint
+        {
+            get
+            {
+                SpellCard card = new SpellCard("Sprint", new Resource(7));
+                card.Add_AfterPlayCard_Trigger(new GameTrigger<GameEffect>(new DrawEffect(new WritableController_Provider(), DrawFromDeck_Provider.FromController(), new ConstantValueProvider<int, Controlled>(4))));
+                return card;
+            }
+        }
+
+        public static SpellCard Flamestrike
+        {
+            get
+            {
+                SpellCard card = new SpellCard("Flamestrike", new Resource(7));
+                card.Add_AfterPlayCard_Trigger(new GameTrigger<GameEffect>(LifeEffect.Blanket(new ConstantValueProvider<int, Controlled>(-4), new EnemyMonsters_Provider(), new ReadableController_Provider())));
+                return card;
+            }
+
+        }
+
+
         public static Readable_MonsterCard IronbarkProtector
         {
             get
             {
                 Writable_MonsterCard card = new Writable_MonsterCard("Ironbark Protector", new Resource(8), 8, 8);
                 card.MustBeAttacked = true;
+                return card;
+            }
+        }
+
+        public static Readable_MonsterCard Cenarius
+        {
+            get
+            {
+                Writable_MonsterCard card = new Writable_MonsterCard("Cenarius", new Resource(9), 5, 8);
+                Writable_MonsterCard treant = new Writable_MonsterCard("Treant", new Resource(2), 2, 2);
+                treant.MustBeAttacked = true;
+                card.Add_AfterPlayCard_Trigger(new GameTrigger<GameEffect>(new SpawnMonster_Effect(treant, new WritableController_Provider(), new ConstantValueProvider<int, Controlled>(2))));
                 return card;
             }
         }
