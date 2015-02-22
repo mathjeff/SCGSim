@@ -14,9 +14,7 @@ namespace Games
         {
             this.Damage = this.originalDamage = damage;
             this.Health = this.originalHealth = health;
-        }
-        private Writable_MonsterCard()
-        {
+            this.NumAttacksPerTurn = 1;
         }
 
         public void Add_BeforeReceiveDamage_Trigger(GameTrigger<Specific_LifeEffect> trigger)
@@ -57,6 +55,7 @@ namespace Games
             this.beforeReceivingDamage_Triggers = new List<GameTrigger<Specific_LifeEffect>>(original.Get_BeforeReceivingDamage_Triggers());
             this.afterDeath_triggers = new List<GameTrigger<GameEffect>>(original.Get_AfterDeath_Triggers());
             this.MustBeAttacked = original.Get_MustBeAttacked();
+            this.NumAttacksPerTurn = original.Get_NumAttacksPerTurn();
             base.CopyFrom(original);
         }
         public override bool IsPlayable(Game game)
@@ -86,10 +85,16 @@ namespace Games
             return output;
         }
         public int NumAttacksRemaining { get; set; }
+        public int NumAttacksPerTurn { get; set; }
         public bool Get_CanAttack()
         {
             return (this.NumAttacksRemaining > 0 && this.Damage > 0);
         }
+        public int Get_NumAttacksPerTurn()
+        {
+            return this.NumAttacksPerTurn;
+        }
+
         public void Attack(ID<Readable_LifeTarget> targetID, Game game)
         {
             Writable_LifeTarget target = game.GetWritable(targetID);

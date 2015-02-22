@@ -15,6 +15,7 @@ namespace Games
         List<GameTrigger<GameEffect>> Get_AfterDeath_Triggers();
         bool Get_MustBeAttacked();
         bool Get_CanAttack();
+        int Get_NumAttacksPerTurn();
         Writable_MonsterCard Clone(Writable_MonsterCard outputType);
     }
 }

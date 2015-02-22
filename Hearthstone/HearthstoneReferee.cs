@@ -18,7 +18,7 @@ namespace Games
             this.legalCards = new List<ReadableCard>{LeperGnome, ArgentSquire, ZombieChow, ElvenArcher,
                 BloodfenRaptor, HauntedCreeper, LootHorder, Wrath,
                 EarthenRingFarseer, IronfurGrizzly, ArcaneIntellect, FanOfKnives,
-                ChillwindYeti, SenjinShieldMasta, Fireball, Hellfire,
+                ChillwindYeti, SenjinShieldMasta, Fireball, Hellfire, Consecration,
                 AzureDrake, SludgeBelcher, Starfall, SilverHandKnight,
                 Sunwalker, CairneBloodhoof, FireElemental, Starfire,
                 WarGolem, Sprint, Flamestrike,
@@ -157,7 +157,8 @@ namespace Games
             // give one attack to each monster
             foreach (ID<Readable_MonsterCard> monsterId in player.MonsterIDsInPlay.GetReadable())
             {
-                game.GetWritable(monsterId).NumAttacksRemaining = 1;
+                Writable_MonsterCard card = game.GetWritable(monsterId);
+                card.NumAttacksRemaining = card.NumAttacksPerTurn;
             }
             // draw a card if there's room
             this.AddCardToHand(player.Deck.Dequeue(), player, game);
@@ -375,7 +376,7 @@ namespace Games
             get
             {
                 SpellCard card = new SpellCard("Fan of Knives", new Resource(3));
-                card.Add_AfterPlayCard_Trigger(new GameTrigger<GameEffect>(LifeEffect.Blanket(new ConstantValueProvider<int, Controlled>(-1), new EnemyMonsters_Provider(), new ReadableController_Provider())));
+                card.Add_AfterPlayCard_Trigger(new GameTrigger<GameEffect>(LifeEffect.Blanket(new ConstantValueProvider<int, Controlled>(-1), new EnemyMonsters_Provider())));
                 card.Add_AfterPlayCard_Trigger(new GameTrigger<GameEffect>(new DrawEffect()));
                 return card;
             }
@@ -424,7 +425,17 @@ namespace Games
             get
             {
                 SpellCard card = new SpellCard("Hellfire", new Resource(4));
-                card.Add_AfterPlayCard_Trigger(new GameTrigger<GameEffect>(LifeEffect.Blanket(new ConstantValueProvider<int, Controlled>(-3), new LifeTarget_Choices_Provider(), new ReadableController_Provider())));
+                card.Add_AfterPlayCard_Trigger(new GameTrigger<GameEffect>(LifeEffect.Blanket(new ConstantValueProvider<int, Controlled>(-3), new LifeTarget_Choices_Provider())));
+                return card;
+            }
+        }
+
+        public static SpellCard Consecration
+        {
+            get
+            {
+                SpellCard card = new SpellCard("Consecration", new Resource(4));
+                card.Add_AfterPlayCard_Trigger(new GameTrigger<GameEffect>(LifeEffect.Blanket(new ConstantValueProvider<int, Controlled>(-2), new OpponentsProvider())));
                 return card;
             }
         }
@@ -462,7 +473,7 @@ namespace Games
             get
             {
                 SpellCard card = new SpellCard("Starfall", new Resource(5));
-                GameEffect blanket = LifeEffect.Blanket(new ConstantValueProvider<int, Controlled>(-2), new EnemyMonsters_Provider(), new ReadableController_Provider());
+                GameEffect blanket = LifeEffect.Blanket(new ConstantValueProvider<int, Controlled>(-2), new EnemyMonsters_Provider());
                 GameEffect target = LifeEffect.Targeted(new ConstantValueProvider<int, Controlled>(-5), new EnemyMonsters_Provider(), new ReadableController_Provider());
                 card.Add_AfterPlayCard_Trigger(new GameTrigger<GameEffect>(new ChoiceEffect(blanket, target)));
                 return card;
@@ -547,7 +558,7 @@ namespace Games
             get
             {
                 SpellCard card = new SpellCard("Flamestrike", new Resource(7));
-                card.Add_AfterPlayCard_Trigger(new GameTrigger<GameEffect>(LifeEffect.Blanket(new ConstantValueProvider<int, Controlled>(-4), new EnemyMonsters_Provider(), new ReadableController_Provider())));
+                card.Add_AfterPlayCard_Trigger(new GameTrigger<GameEffect>(LifeEffect.Blanket(new ConstantValueProvider<int, Controlled>(-4), new EnemyMonsters_Provider())));
                 return card;
             }
 
@@ -575,5 +586,37 @@ namespace Games
                 return card;
             }
         }
+
+        public static Readable_MonsterCard AlAkir
+        {
+            get
+            {
+                Writable_MonsterCard card = new Writable_MonsterCard("Al'Akir the Windlord", new Resource(8), 3, 5);
+                card.Add_SingleUse_Shield();
+                card.MustBeAttacked = true;
+                card.NumAttacksPerTurn = card.NumAttacksRemaining = 2;
+                return card;
+            }
+        }
+        /*
+        public static Readable_MonsterCard Ragnaros
+        {
+            get
+            {
+                Writable_MonsterCard card = new Writable_MonsterCard("Ragnaros, the Firelord", new Resource(8), 8, 8);
+                card.NumAttacksPerTurn = 0;
+
+            }
+        }
+        */
+        /*public static Readable_MonsterCard Ysera
+        {
+            get
+            {
+                Writable_MonsterCard card = new Writable_MonsterCard("Ysera", new Resource(9), 4, 12);
+                return card;
+            }
+        }
+        */
     }
 }

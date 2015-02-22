@@ -19,9 +19,9 @@ namespace Games
             return new LifeEffect(amountToGain_provider, new ListProvider<Readable_LifeTarget, Controlled>(targetProvider), chooserProvider, false);
         }
         // Returns a LifeEffect that knows to affect each target
-        public static LifeEffect Blanket(ValueProvider<int, Controlled> amountToGain_provider, ValueProvider<IList<Readable_LifeTarget>, Controlled> targetsProvider, ValueProvider<Readable_GamePlayer, Controlled> chooserProvider)
+        public static LifeEffect Blanket(ValueProvider<int, Controlled> amountToGain_provider, ValueProvider<IList<Readable_LifeTarget>, Controlled> targetsProvider)
         {
-            return new LifeEffect(amountToGain_provider, targetsProvider, chooserProvider, true);
+            return new LifeEffect(amountToGain_provider, targetsProvider, new ReadableController_Provider(), true);
         }
 
         // A LifeEffect that hasn't yet chosen its exact details (what it targets, where it comes from, or how strong it is) except that it targets exactly one thing
@@ -62,7 +62,6 @@ namespace Games
         public override void Process(Game game)
         {
             int amountToGain = this.amountToGain_provider.GetValue(this, game, default(int));
-            Readable_GamePlayer controller = this.chooserProvider.GetValue(this, game, (Readable_GamePlayer)null);
             IList<Readable_LifeTarget> availableTargets = this.targetsProvider.GetValue(this, game, (IList<Readable_LifeTarget>)null);
             // multiple choices of what to heal/damage, so ask the player what to do
             List<GameEffect> options = new List<GameEffect>();
@@ -82,6 +81,7 @@ namespace Games
                 if (options.Count == 0 || !this.TargetRequired)
                     options.Add(new EmptyEffect());
                 // ask the game to choose one of these options
+                Readable_GamePlayer controller = this.chooserProvider.GetValue(this, game, (Readable_GamePlayer)null);
                 game.AddChoice(new GameChoice(options, controller.GetID((Readable_GamePlayer)null)));
             }
         }

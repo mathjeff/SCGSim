@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace Games
 {
+    // Processing this effect means that the active player is choosing to end his/her turn
     class EndTurn_Effect : GameEffect
     {
         public EndTurn_Effect(ID<Readable_GamePlayer> controllerId)
@@ -25,4 +26,6 @@ namespace Games
             return "End turn for " + game.Get_ReadableSnapshot(this.ControllerID);
         }
     }
+
+
 }

@@ -230,7 +230,8 @@ namespace Games
             }
             else
             {
-                this.pendingEffects.AddLast(choice);
+                // If an effect creates a choice, then that choice is processed before any previous choices (like attacking or ending the turn)
+                this.pendingEffects.AddFirst(choice);
             }
         }
         public GameChoice Get_NextChoice()
